@@ -164,7 +164,8 @@ Password → ************
 Service connection name → e.g. myAcrServiceConnection
 
 
-=================================================================================================================
+==========================================================azure pipeline in docker reg=======================================================
+
 3.azure pipeline yaml
 # Docker
 # Build and push an image to docker registry Registry
@@ -203,7 +204,42 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+--------------------------------------------------azure pipeline in acr reg
+trigger:
+  paths:
+    include:
+      - result/*
 
+resources:
+- repo: self
+
+variables:
+  acrServiceConnection: 'azureconnectionacr'  # Name of Azure Container Registry service connection in Azure DevOps
+  acrName: 'acreg'                          # Your ACR name (without .azurecr.io)
+  imageRepository: 'myapp'                         # Image name (repo inside ACR)
+  dockerfilePath: '$(Build.SourcesDirectory)/result/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+pool:
+  name: devops
+
+stages:
+- stage: BuildAndPush
+  displayName: Build and Push to ACR
+  jobs:
+  - job: DockerBuildPush
+    displayName: Docker Build & Push to ACR
+    steps:
+    - task: Docker@2
+      displayName: Build and Push Docker Image to ACR
+      inputs:
+        command: buildAndPush
+        containerRegistry: $(acrServiceConnection)        # ACR service connection
+        repository: $(imageRepository)                    # This is the ACR repo (no login server here)
+        dockerfile: $(dockerfilePath)
+        tags: |
+          $(tag)
+=================================================================================================================
 
 step 3. how to select git rep in pipeline
 Case 1: Repo in Azure Repos
