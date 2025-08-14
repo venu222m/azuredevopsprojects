@@ -222,6 +222,52 @@ Service principal key: password
 Tenant ID: tenant
 
 Verify connection.
+========================================
+There are two main ways to connect ACR to Azure DevOps:
+
+1️⃣ Automatic Method (Recommended if you have rights)
+
+In Azure DevOps → Project Settings → Service connections → New service connection → Docker Registry → Azure Container Registry
+
+Select Service principal (automatic) → Azure DevOps will:
+
+Create a Service Principal for you.
+
+Assign it AcrPush permissions.
+
+Store credentials securely.
+
+Pros: No CLI commands, quick, and less error-prone.
+
+Cons: Requires that your Azure DevOps user has Owner or User Access Administrator role on the subscription.
+
+2️⃣ Manual Method (Your Command)
+
+You:
+
+Manually create the Service Principal:
+
+ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query id --output tsv)
+az ad sp create-for-rbac --name $SP_NAME --scopes $ACR_ID --role AcrPush
+
+
+appId → Client ID
+
+password → Client Secret
+
+tenant → Tenant ID
+
+Manually create the Service Connection in Azure DevOps:
+
+Registry type: Azure Container Registry
+
+Authentication method: Service principal (manual)
+
+Enter Client ID, Client Secret, Tenant ID.
+
+Pros: Works even if you don’t have permission for automatic creation.
+
+Cons: More steps, you manage SPN lifecycle yourself.
 =========================================================================================================
 
 step 3. how to select git rep in pipeline
