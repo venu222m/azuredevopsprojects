@@ -1,0 +1,70 @@
+
+
+vm agent setup 
+# Variables
+RESOURCE_GROUP="MyResourceGroup"
+LOCATION="eastus"
+VNET_NAME="MyVNet"
+SUBNET_NAME="MySubnet"
+PUBLIC_IP_NAME="MyPublicIP"
+NIC_NAME="MyNIC"
+VM_NAME="MyVM"
+USERNAME="azureuser"
+PASSWORD="YourStrongP@ssw0rd"
+IMAGE="Ubuntu2204" # For Windows use: Win2019Datacenter
+
+# 1. Create Resource Group
+az group create --name $RESOURCE_GROUP --location $LOCATION
+
+# 2. Create VNet and Subnet
+az network vnet create \
+  --resource-group $RESOURCE_GROUP \
+  --name $VNET_NAME \
+  --subnet-name $SUBNET_NAME \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-prefix 10.0.1.0/24
+
+# 3. Create Public IP
+az network public-ip create \
+  --resource-group $RESOURCE_GROUP \
+  --name $PUBLIC_IP_NAME \
+  --sku Basic \
+  --allocation-method Dynamic
+
+# 4. Create NIC
+az network nic create \
+  --resource-group $RESOURCE_GROUP \
+  --name $NIC_NAME \
+  --vnet-name $VNET_NAME \
+  --subnet $SUBNET_NAME \
+  --public-ip-address $PUBLIC_IP_NAME
+
+# 5. Create VM
+az vm create \
+  --resource-group $RESOURCE_GROUP \
+  --name $VM_NAME \
+  --nics $NIC_NAME \
+  --image $IMAGE \
+  --admin-username $USERNAME \
+  --admin-password $PASSWORD \
+  --size Standard_B1s
+
+# 6. Open Port for SSH (Linux) or RDP (Windows)
+az vm open-port --port 22 --resource-group $RESOURCE_GROUP --name $VM_NAME  # SSH
+# az vm open-port --port 3389 --resource-group $RESOURCE_GROUP --name $VM_NAME  # RDP (Windows)
+
+# 7. Get Public IP
+az vm list-ip-addresses --resource-group $RESOURCE_GROUP --name $VM_NAME --output table
+
+
+
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'MyAzureConnection'  # must match exactly
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az acr login --name $(ACR_NAME)
+      docker build -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(IMAGE_TAG) .
+      docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(IMAGE_TAG
