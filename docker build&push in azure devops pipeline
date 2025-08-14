@@ -11,7 +11,7 @@
 | **Repo linked to Azure DevOps**         | Source code + Dockerfile stored in Azure Repos or GitHub.                          |
 
 
-vm agent setup 
+1.vm agent setup 
 # Variables
 RESOURCE_GROUP="MyResourceGroup"
 LOCATION="eastus"
@@ -67,15 +67,54 @@ az vm open-port --port 22 --resource-group $RESOURCE_GROUP --name $VM_NAME  # SS
 # 7. Get Public IP
 az vm list-ip-addresses --resource-group $RESOURCE_GROUP --name $VM_NAME --output table
 
+2.step
+Create Service Connection in Azure DevOps
+Go to Project Settings → Service connections → New service connection → Docker Registry.
+Select Azure Container Registry → Authentication method: Service principal (automatic).
+Pick your subscription and ACR.
+
+Name it (example: ACR-ServiceConnection).
+
+3.azure pipeline yaml
+trigger:
+  branches:
+    include:
+      - main
+
+variables:
+  imageName: 'myapp'
+
+stages:
+- stage: BuildAndPush
+  jobs:
+  - job: DockerBuild
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: Docker@2
+      displayName: Build and push Docker image
+      inputs:
+        containerRegistry: 'ACR-ServiceConnection'   # service connection name
+        repository: '$(imageName)'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
+        tags: |
+          $(Build.BuildId)
+          latest
 
 
+step 3. how to select git rep in pipeline
+Case 1: Repo in Azure Repos
+Go to Pipelines → New Pipeline.
+Choose Azure Repos Git.
+Select your Azure DevOps project’s repository from the list.
+Pick an existing YAML file or let it create a starter YAML.
+Commit pipeline file to your repo.
 
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'MyAzureConnection'  # must match exactly
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      az acr login --name $(ACR_NAME)
-      docker build -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(IMAGE_TAG) .
-      docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):$(IMAGE_TAG
+Case 2: Repo in GitHub
+Go to Pipelines → New Pipeline.
+Choose GitHub.
+Authorize Azure DevOps to access your GitHub account (OAuth).
+Select the desired repository.
+Pick your YAML file or start new.
+Commit pipeline file to repo.
