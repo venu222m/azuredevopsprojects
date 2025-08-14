@@ -67,6 +67,13 @@ az vm open-port --port 22 --resource-group $RESOURCE_GROUP --name $VM_NAME  # SS
 # 7. Get Public IP
 az vm list-ip-addresses --resource-group $RESOURCE_GROUP --name $VM_NAME --output table
 --------------------------------------------------------------------------------
+putty login
+USERNAME="azureuser"
+PASSWORD="YourStrongP@ssw0rd"
+azureuser@pubip
+after login ui
+give pwd YourStrongP@ssw0rd
+
 Self-Hosted Agent Authentication Flow
 
 Create Agent Pool
