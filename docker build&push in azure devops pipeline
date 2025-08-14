@@ -66,6 +66,59 @@ az vm open-port --port 22 --resource-group $RESOURCE_GROUP --name $VM_NAME  # SS
 
 # 7. Get Public IP
 az vm list-ip-addresses --resource-group $RESOURCE_GROUP --name $VM_NAME --output table
+--------------------------------------------------------------------------------
+Self-Hosted Agent Authentication Flow
+
+Create Agent Pool
+
+In Azure DevOps → Project Settings → Agent pools → Add pool.
+
+Name: e.g., MySelfHostedPool.
+
+This pool is like a “group” where your agent will be registered.
+
+Add Agent to Pool
+
+Click your new pool → New agent.
+
+Select OS (Windows / Linux / MacOS).
+
+Download the agent package.
+
+Configure Agent
+step1 
+~/$ mkdir myagent && cd myagent
+step2
+wget https://download.agent.dev.azure.com/agent/4.260.0/vsts-agent-linux-x64-4.260.0.tar.gz
+step3
+~/myagent$ tar zxvf vsts-agent-linux-x64-4.260.0.tar.gz
+Extract the downloaded ZIP/TAR.
+step4
+Run config script:
+./config.sh
+Provide:
+
+Azure DevOps organization URL https://dev.azure.com/venudevops688/
+
+Authentication method: PAT (Personal Access Token).
+
+Generate PAT in User Settings → Personal access tokens with scope Agent Pools (read, manage).
+
+Agent Pool name: the one you created.
+
+Agent name: any identifier for that machine.
+
+Work folder: default _work.  given work folder name(venu is folder name)
+Start the Agent
+
+Run manually:
+./run.sh
+
+Verify in Azure DevOps
+Go back to Agent pools → open your pool.
+You should see the agent online ✅
+---------------------------------------------------------------
+
 
 2.step
 Create Service Connection in Azure DevOps
