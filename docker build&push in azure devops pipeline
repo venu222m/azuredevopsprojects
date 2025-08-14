@@ -136,31 +136,43 @@ Pick your subscription and ACR.
 Name it (example: ACR-ServiceConnection).
 
 3.azure pipeline yaml
+# Docker
+# Build and push an image to docker registry Registry
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
 trigger:
-  branches:
+  paths:
     include:
-      - main
+      - result/*
+
+resources:
+- repo: self
 
 variables:
-  imageName: 'myapp'
+  dockerRegistryServiceConnection: 'dockerHubConnection'  # Docker Hub service connection name
+  imageRepository: 'venutej220/test'  # Format: username/repo
+  dockerfilePath: '$(Build.SourcesDirectory)/result/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+pool:
+  name: devops
 
 stages:
 - stage: BuildAndPush
+  displayName: Build and Push to Docker Hub
   jobs:
-  - job: DockerBuild
-    pool:
-      vmImage: 'ubuntu-latest'
+  - job: DockerBuildPush
+    displayName: Docker Build & Push
     steps:
     - task: Docker@2
-      displayName: Build and push Docker image
+      displayName: Build and Push Docker Image
       inputs:
-        containerRegistry: 'ACR-ServiceConnection'   # service connection name
-        repository: '$(imageName)'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(Build.BuildId)
-          latest
+          $(tag)
 =================================================================================================service principle==================
 1️⃣ What is a Service Principal in Azure?
 
