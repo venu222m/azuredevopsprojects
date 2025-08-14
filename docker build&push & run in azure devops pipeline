@@ -127,14 +127,25 @@ You should see the agent online ✅
 ---------------------------------------------------------------
 
 
-2.step
-Create Service Connection in Azure DevOps
-Go to Project Settings → Service connections → New service connection → Docker Registry.
-Select Azure Container Registry → Authentication method: Service principal (automatic).
-Pick your subscription and ACR.
+2.step Create Service Connection in Azure DevOps 
+Create the Docker Hub Service Connection
 
-Name it (example: ACR-ServiceConnection).
+Go to Azure DevOps → Project Settings → Service connections.
 
+Click New service connection → Docker Registry.
+
+Select:
+
+Registry type → Docker Hub
+
+Docker Hub username → Your Docker Hub username
+
+Docker Hub password → Your Docker Hub access token (not plain password; generate from Docker Hub → Security → Access Tokens)
+
+Service connection name → e.g., dockerHubConnection
+
+Click Save (and authorize if needed).
+=================================================================================================================
 3.azure pipeline yaml
 # Docker
 # Build and push an image to docker registry Registry
@@ -173,114 +184,7 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
-=================================================================================================service principle==================
-1️⃣ What is a Service Principal in Azure?
 
-Think of it as a special “app identity” in Azure AD that can log in and act on Azure resources — but it’s not tied to a human user.
-
-In Azure DevOps pipelines, when you use a Service connection, behind the scenes it’s often an SPN that’s used for authentication.
-
-2️⃣ Why We Need It for Azure DevOps → ACR
-
-Azure DevOps needs secure credentials to:
-
-Log into Azure
-
-Push Docker images to ACR
-
-Using a Service Principal is safer than using your personal credentials.
-
-3️⃣ How to Create an SPN (Manual)
-
-You can create it via Azure CLI:
-
-# Variables
-ACR_NAME=myacr12345
-RESOURCE_GROUP=my-rg
-SP_NAME=sp-acr-access
-
-# Get ACR ID
-ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query id --output tsv)
-
-# Create SP with ACR push/pull permissions
-az ad sp create-for-rbac --name $SP_NAME --scopes $ACR_ID --role AcrPush
-
-
-This command returns:
-
-{
-  "appId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",   # Client ID
-  "displayName": "sp-acr-access",
-  "password": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", # Client Secret
-  "tenant": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"    # Tenant ID
-}
-
-4️⃣ Use SPN in Azure DevOps Service Connection
-
-Go to Project Settings → Service connections → New service connection.
-
-Choose Docker Registry → Azure Container Registry.
-
-Select Service principal (manual).
-
-Enter:
-
-Server URL: https://<acr-name>.azurecr.io
-
-Service principal ID: appId
-
-Service principal key: password
-
-Tenant ID: tenant
-
-Verify connection.
-========================================
-There are two main ways to connect ACR to Azure DevOps:
-
-1️⃣ Automatic Method (Recommended if you have rights)
-
-In Azure DevOps → Project Settings → Service connections → New service connection → Docker Registry → Azure Container Registry
-
-Select Service principal (automatic) → Azure DevOps will:
-
-Create a Service Principal for you.
-
-Assign it AcrPush permissions.
-
-Store credentials securely.
-
-Pros: No CLI commands, quick, and less error-prone.
-
-Cons: Requires that your Azure DevOps user has Owner or User Access Administrator role on the subscription.
-
-2️⃣ Manual Method (Your Command)
-
-You:
-
-Manually create the Service Principal:
-
-ACR_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query id --output tsv)
-az ad sp create-for-rbac --name $SP_NAME --scopes $ACR_ID --role AcrPush
-
-
-appId → Client ID
-
-password → Client Secret
-
-tenant → Tenant ID
-
-Manually create the Service Connection in Azure DevOps:
-
-Registry type: Azure Container Registry
-
-Authentication method: Service principal (manual)
-
-Enter Client ID, Client Secret, Tenant ID.
-
-Pros: Works even if you don’t have permission for automatic creation.
-
-Cons: More steps, you manage SPN lifecycle yourself.
-=========================================================================================================
 
 step 3. how to select git rep in pipeline
 Case 1: Repo in Azure Repos
