@@ -154,11 +154,12 @@ In Azure DevOps New Service Connection → Docker Registry:
 
 Registry type → Others
 
-Docker registry → acrreg.azurecr.io (exactly this, no https:// or /)
+Docker registry → https://acrreg.azurecr.io 
+in acces in acr you can find credtionals
 
-Username → Your Service Principal App ID
+Username → acrreg
 
-Password → Your Service Principal Secret
+Password → ************
 
 Service connection name → e.g. myAcrServiceConnection
 
