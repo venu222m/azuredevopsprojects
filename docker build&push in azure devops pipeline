@@ -1,3 +1,14 @@
+1️⃣ Prerequisites
+
+| Item                                    | Why Needed                                                                         |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| **Azure Subscription**                  | To create and host Azure Container Registry (ACR).                                 |
+| **Azure Container Registry (ACR)**      | The private registry where your Docker image will be pushed.                       |
+| **Service Principal (SPN)**             | Required for Azure DevOps to authenticate with ACR.                                |
+| **Azure DevOps Organization & Project** | Your CI/CD workspace.                                                              |
+| **Agent with Docker installed**         | If using a self-hosted agent, install Docker; or use `ubuntu-latest` hosted agent. |
+| **Dockerfile**                          | Located in your repo root (or specified path).                                     |
+| **Repo linked to Azure DevOps**         | Source code + Dockerfile stored in Azure Repos or GitHub.                          |
 
 
 vm agent setup 
