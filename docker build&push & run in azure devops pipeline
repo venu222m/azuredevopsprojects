@@ -145,6 +145,24 @@ Docker Hub password → Your Docker Hub access token (not plain password; genera
 Service connection name → e.g., dockerHubConnection
 
 Click Save (and authorize if needed).
+
+2.step Create Service Connection in Azure DevOps 
+Create the ACR Service Connection
+
+*Azure Container Registry (ACR)**      | The private registry where your Docker image will be pushed. 
+In Azure DevOps New Service Connection → Docker Registry:
+
+Registry type → Others
+
+Docker registry → acrreg.azurecr.io (exactly this, no https:// or /)
+
+Username → Your Service Principal App ID
+
+Password → Your Service Principal Secret
+
+Service connection name → e.g. myAcrServiceConnection
+
+
 =================================================================================================================
 3.azure pipeline yaml
 # Docker
