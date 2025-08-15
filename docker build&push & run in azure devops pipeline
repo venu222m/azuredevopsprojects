@@ -271,11 +271,8 @@ If Microsoft-hosted: skip this (Docker is pre-installed).
 If Self-hosted:
 
 # Install Docker on Linux
-sudo apt-get update
-sudo apt-get install -y docker.io
-sudo usermod -aG docker $(whoami)
-sudo systemctl enable docker
-sudo systemctl start docker
+curl https://get.docker.com | bash
+sudo usermod -aG docker azureuser
 
 
 Then restart the agent so it has Docker group permissions.
